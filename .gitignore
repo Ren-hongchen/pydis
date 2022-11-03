@@ -1,0 +1,5 @@
+.mypy_cache
+test/.pytest_cache
+test/__pycache__
+.idea
+__pycache__
