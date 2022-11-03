@@ -93,6 +93,12 @@ class LinkedList:
         return self._tail
     
     def list_add_node_head(self, value: Any) -> None:
+        """
+        将一个包含给定值的新节点添加到链表的表头
+
+        :param value: 新节点的值
+        :return: None
+        """
         node = ListNode(value)
 
         if self._head is None:
@@ -107,6 +113,12 @@ class LinkedList:
         self._len += 1
 
     def list_add_node_tail(self, value: Any) -> None:
+        """
+        将一个包含给定值的新节点添加到链表的表尾
+
+        :param value: 新节点的值
+        :return: None
+        """
         node = ListNode(value)
 
         if self._tail is None:
@@ -124,13 +136,11 @@ class LinkedList:
         """
         将一个包含给定值的新节点添加到给定节点的之前或之后
 
-        Args:
-            node: 给定节点
-            value: 新节点的值
-            after: 值为1--添加到给定节点之后
-                   值为2--添加到给定节点之前
-        
-        Returns: None
+        :param node: 给定节点
+        :param value: 新节点的值
+        :param after: 值为1 -- 添加到 给定节点 之后
+                      值为0 -- 添加到 给定节点 之前
+        :return: None
         """
         if node is None:
             return
@@ -157,6 +167,13 @@ class LinkedList:
         self._len += 1
 
     def list_search_key(self, value: Any) -> Optional[ListNode]:
+        """
+        查找并返回链表中包含给定值的节点
+
+        :param value: 查找节点的值
+        :return: 查找成功返回节点
+                 查找失败返回None
+        """
         for node in self:
             if self._match is not None:
                 if self._match(node.value, value):
@@ -167,6 +184,13 @@ class LinkedList:
         return None
     
     def list_index(self, index: int) -> Optional[ListNode]:
+        """
+        返回链表在给定索引上的节点
+
+        :param index: 索引 0为第一个 -1为倒数第一个
+        :return: 查找成功返回节点
+                 查找失败返回None
+        """
         if index < 0:
             index = (-index) - 1
             p = self._tail
@@ -181,6 +205,12 @@ class LinkedList:
         return p
 
     def list_del_node(self, node: ListNode) -> None:
+        """
+        从链表中删除给定节点
+
+        :param node: 需要删除的节点
+        :return: None
+        """
         if node.prev:
             node.prev.next = node.next
         else:
@@ -196,6 +226,11 @@ class LinkedList:
         self._len -= 1
 
     def list_rotate(self) -> None:
+        """
+        将链表的表尾节点弹出，然后将被弹出的节点插入到链表的表头
+
+        :return: None
+        """
         if self._tail is None or self._head is None:
             return
         p = self._tail
@@ -210,6 +245,11 @@ class LinkedList:
         self._head = p
     
     def list_dup(self) -> Optional["LinkedList"]:
+        """
+        复制一个链表的副本
+
+        :return: 返回新链表，可能为None
+        """
         new_list = LinkedList()
 
         new_list.dup = self._dup
