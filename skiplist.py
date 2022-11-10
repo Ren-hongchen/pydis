@@ -71,6 +71,13 @@ class SkipList:
         return level if level < SkipListEnum.SKIPLIST_MAXLEVEL else SkipListEnum.SKIPLIST_MAXLEVEL
 
     def zsl_insert(self, score: float, pobj: Optional[PydisObject]) -> SkipListNode:
+        """
+        将包含给定成员和分值的新节点插入到跳跃表中
+
+        :param score: 新节点的分值
+        :param pobj: 新节点的成员
+        :return: 新节点
+        """
         assert score is not None
 
         update: List[Optional[SkipListNode]] = [None] * SkipListEnum.SKIPLIST_MAXLEVEL
@@ -142,6 +149,13 @@ class SkipList:
         self._length -= 1
 
     def zsl_delete(self, score: float, pobj: PydisObject) -> bool:
+        """
+        删除跳跃表中包含给定成员和分值的节点
+
+        :param score:  删除节点的分值
+        :param pobj:  删除节点的成员
+        :return: 成功返回True，否则False
+        """
 
         update: List[Optional[SkipListNode]] = [None] * SkipListEnum.SKIPLIST_MAXLEVEL
 
@@ -166,6 +180,13 @@ class SkipList:
         return False
 
     def zsl_get_rank(self, score: float, pobj: PydisObject) -> int:
+        """
+        返回包含给定成员和分值的节点在跳跃表中的排位
+
+        :param score: 查找节点的分值
+        :param pobj: 查找节点的成员
+        :return: 查找节点的rank值
+        """
 
         rank = 0
         x = self._head
@@ -186,6 +207,12 @@ class SkipList:
         return 0
 
     def zsl_get_element_by_rank(self, rank: int) -> Optional[SkipListNode]:
+        """
+        返回跳跃表在给定排位上的节点
+
+        :param rank: 给定排位
+        :return: 如果该节点存在返回节点，否则返回None
+        """
 
         traversed = 0
         x = self._head
@@ -202,6 +229,12 @@ class SkipList:
         return None
 
     def zsl_is_in_range(self, limits: tuple) -> bool:
+        """
+        给定一个分值范围，判断给定的范围是否包含在跳跃表的分值范围内
+
+        :param limits: 分值范围(左闭右开)
+        :return: 包含返回True，否则False
+        """
 
         if limits[0] > limits[1]:
             raise ValueError("左值应该小于右值")
@@ -217,6 +250,12 @@ class SkipList:
         return True
 
     def zsl_first_in_range(self, limits: tuple) -> Optional[SkipListNode]:
+        """
+        给定一个分值范围，返回跳跃表中第一个符合这个范围的节点
+
+        :param limits: 分值范围(左闭右开)
+        :return: 返回节点，不存在返回None
+        """
 
         if not self.zsl_is_in_range(limits):
             raise ValueError("该区间不在表内")
@@ -236,6 +275,12 @@ class SkipList:
         return x
 
     def zsl_last_in_range(self, limits: tuple) -> Optional[SkipListNode]:
+        """
+        给定一个分值范围，返回跳跃表中最后一个符合这个范围的节点
+
+        :param limits: 给定范围(左闭右开)
+        :return: 返回节点，不存在返回None
+        """
 
         if not self.zsl_is_in_range(limits):
             raise ValueError("该区间不在表内")
@@ -255,11 +300,18 @@ class SkipList:
         return x
 
     def zsl_delete_range_by_score(self, limits: tuple, pdict: Dict) -> int:
+        """
+        给定一个分值范围，删除跳跃表中所有在这个范围之内的节点
+
+        :param limits: 分值范围(左闭右开)
+        :param pdict: 字典
+        :return: 删除节点的数量
+        """
 
         update: List[Optional[SkipListNode]] = [None] * SkipListEnum.SKIPLIST_MAXLEVEL
         removed: int = 0
 
-        x: SkipListNode = self._head
+        x = self._head
         for i in range(self._level - 1, -1, -1):
 
             while x.level[i].forward and x.level[i].forward.score < limits[0]:
@@ -267,10 +319,10 @@ class SkipList:
 
             update[i] = x
 
-        x: SkipListNode = x.level[0].forward
+        x = x.level[0].forward
 
         while x and x.score < limits[1]:
-            next: SkipListNode = x.level[0].forward
+            next = x.level[0].forward
             self._zsl_delete_node(x, update)
             pdict.dict_delete(x.pobj)
             del x
@@ -280,12 +332,19 @@ class SkipList:
         return removed
 
     def zsl_delete_range_by_rank(self, limits: tuple, pdict: Dict) -> int:
+        """
+        给定一个排位范围，删除跳跃表中所有在这个范围之内的节点
+
+        :param limits: 排位范围(左闭右开)
+        :param pdict: 字典
+        :return: 删除节点的数量
+        """
 
         update: List[Optional[SkipListNode]] = [None] * SkipListEnum.SKIPLIST_MAXLEVEL
         removed: int = 0
         traversed: int = 0
 
-        x: SkipListNode = self._head
+        x = self._head
         for i in range(self._level - 1, -1, -1):
 
             while x.level[i].forward and (traversed + x.level[i].span < limits[0]):
@@ -295,10 +354,10 @@ class SkipList:
             update[i] = x
 
         traversed += 1
-        x: SkipListNode = x.level[0].forward
+        x = x.level[0].forward
 
         while x and traversed < limits[1]:
-            next: SkipListNode = x.level[0].forward
+            next = x.level[0].forward
             self._zsl_delete_node(x, update)
             pdict.dict_delete(x.pobj)
             del x
@@ -307,6 +366,3 @@ class SkipList:
             x = next
 
         return removed
-
-
-
