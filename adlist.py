@@ -42,6 +42,9 @@ class LinkedList:
         self._dup: Optional[Callable] = None
         self._free: Optional[Callable] = None
         self._match: Optional[Callable] = None
+
+    def __len__(self) -> int:
+        return self._len
     
     def __iter__(self) -> Iterator:
         p = self._head
@@ -79,10 +82,6 @@ class LinkedList:
     @match.setter
     def match(self, match_func: Callable) -> None:
         self._match = match_func
-
-    @property
-    def len(self) -> int:
-        return self._len
 
     @property
     def head(self) -> Optional[ListNode]:

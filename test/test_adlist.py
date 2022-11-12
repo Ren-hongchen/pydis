@@ -23,7 +23,7 @@ class TestAdList:
         assert node.value == 123
 
     def test_adlist_len(self):
-        assert self.adlist.len == 3
+        assert len(self.adlist) == 3
 
     def test_adlist_iter(self):
         assert isinstance(iter(self.adlist), Iterator)
