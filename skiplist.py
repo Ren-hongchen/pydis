@@ -33,7 +33,7 @@ class SkipListNode:
         self._backward: Optional["SkipListNode"] = None
         self._score: float = score
         self._pobj: Optional[PydisObject] = pobj
-        self._level: List[SkipListLevel] = [SkipListLevel()] * level
+        self._level: List[SkipListLevel] = [SkipListLevel() for _ in range(level)]
 
     @property
     def backward(self) -> Optional["SkipListNode"]:
@@ -64,6 +64,22 @@ class SkipList:
         # 跳跃表内，层数最大的节点的层数(表头节点不计算在内)
         self._level: int = 1
 
+    @property
+    def head(self) -> Optional[SkipListNode]:
+        return self._head
+
+    @property
+    def tail(self) -> Optional[SkipListNode]:
+        return self._tail
+
+    @property
+    def length(self) -> int:
+        return self._length
+
+    @property
+    def level(self) -> int:
+        return self._level
+
     def _get_random_level(self) -> int:
         level = 1
         while random.randint(0, 0x7fff) < (SkipListEnum.SKIPLIST_P * 0xffff):
@@ -91,7 +107,7 @@ class SkipList:
             while x.level[i].forward and (
                 x.level[i].forward.score < score or
                 (x.level[i].forward.score == score and
-                 compare_string_objects(x.level[i].forward.pobj, pobj))
+                 compare_string_objects(x.level[i].forward.pobj, pobj) < 0)
             ):
                 rank[i] += x.level[i].span
                 x = x.level[i].forward
@@ -165,7 +181,7 @@ class SkipList:
             while x.level[i].forward and (
                     x.level[i].forward.score < score or
                     (x.level[i].forward.score == score and
-                     compare_string_objects(x.level[i].forward.pobj, pobj))
+                     compare_string_objects(x.level[i].forward.pobj, pobj) < 0)
             ):
                 x = x.level[i].forward
 
@@ -196,7 +212,7 @@ class SkipList:
             while x.level[i].forward and (
                     x.level[i].forward.score < score or
                     (x.level[i].forward.score == score and
-                     compare_string_objects(x.level[i].forward.pobj, pobj))
+                     compare_string_objects(x.level[i].forward.pobj, pobj) <= 0)
             ):
                 rank += x.level[i].span
                 x = x.level[i].forward
@@ -219,7 +235,7 @@ class SkipList:
 
         for i in range(self._level - 1, -1, -1):
 
-            while x.level[i].forward and (traversed + x.level[i].span) < rank:
+            while x.level[i].forward and (traversed + x.level[i].span) <= rank:
                 traversed += x.level[i].span
                 x = x.level[i].forward
 
@@ -232,7 +248,7 @@ class SkipList:
         """
         给定一个分值范围，判断给定的范围是否包含在跳跃表的分值范围内
 
-        :param limits: 分值范围(左闭右开)
+        :param limits: 分值范围
         :return: 包含返回True，否则False
         """
 
@@ -240,11 +256,11 @@ class SkipList:
             raise ValueError("左值应该小于右值")
 
         x = self._tail
-        if x is None or x.score > limits[1]:
+        if x is None or x.score < limits[1]:
             return False
 
         x = self._head.level[0].forward
-        if x is None or x.score <= limits[0]:
+        if x is None or x.score > limits[0]:
             return False
 
         return True
@@ -253,7 +269,7 @@ class SkipList:
         """
         给定一个分值范围，返回跳跃表中第一个符合这个范围的节点
 
-        :param limits: 分值范围(左闭右开)
+        :param limits: 分值范围
         :return: 返回节点，不存在返回None
         """
 
@@ -263,7 +279,7 @@ class SkipList:
         x = self._head
         for i in range(self._level - 1, -1, -1):
 
-            while x.level[i].forward and (x.level[i].forward.score >= limits[0]):
+            while x.level[i].forward and (x.level[i].forward.score < limits[0]):
                 x = x.level[i].forward
 
         x = x.level[0].forward
@@ -278,7 +294,7 @@ class SkipList:
         """
         给定一个分值范围，返回跳跃表中最后一个符合这个范围的节点
 
-        :param limits: 给定范围(左闭右开)
+        :param limits: 给定范围
         :return: 返回节点，不存在返回None
         """
 
@@ -294,16 +310,16 @@ class SkipList:
         x = x.level[0].forward
         assert x is not None
 
-        if x.score <= limits[0]:
+        if x.score < limits[0]:
             return None
 
         return x
 
-    def zsl_delete_range_by_score(self, limits: tuple, pdict: Dict) -> int:
+    def zsl_delete_range_by_score(self, limits: tuple, pdict: Optional[Dict]) -> int:
         """
         给定一个分值范围，删除跳跃表中所有在这个范围之内的节点
 
-        :param limits: 分值范围(左闭右开)
+        :param limits: 分值范围（左闭右开)
         :param pdict: 字典
         :return: 删除节点的数量
         """
@@ -324,14 +340,15 @@ class SkipList:
         while x and x.score < limits[1]:
             next = x.level[0].forward
             self._zsl_delete_node(x, update)
-            pdict.dict_delete(x.pobj)
+            if pdict is not None:
+                pdict.dict_delete(x.pobj)
             del x
             removed += 1
             x = next
 
         return removed
 
-    def zsl_delete_range_by_rank(self, limits: tuple, pdict: Dict) -> int:
+    def zsl_delete_range_by_rank(self, limits: tuple, pdict: Optional[Dict]) -> int:
         """
         给定一个排位范围，删除跳跃表中所有在这个范围之内的节点
 
@@ -359,7 +376,8 @@ class SkipList:
         while x and traversed < limits[1]:
             next = x.level[0].forward
             self._zsl_delete_node(x, update)
-            pdict.dict_delete(x.pobj)
+            if pdict is not None:
+                pdict.dict_delete(x.pobj)
             del x
             traversed += 1
             removed += 1
