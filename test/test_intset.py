@@ -37,6 +37,10 @@ class TestIntSet:
     def test_intset_blob_len(self):
         print(self._intset.intset_blob_len())
 
+    def test_intset_iter(self):
+        it = iter(self._intset)
+        assert next(it) == 4
+
 
 if __name__ == '__main__':
     pytest.main()
