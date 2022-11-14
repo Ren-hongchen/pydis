@@ -24,7 +24,7 @@ class PydisObjectEncodingEnum(IntEnum):
     PYDIS_ENCODING_ZIPLIST = 5  # 压缩链表
     PYDIS_ENCODING_INTSET = 6  # 整数集合
     PYDIS_ENCODING_SKIPLIST = 7  # 跳跃表和字典
-    PYDIS_ENCODING_EMBSTR = 8  # embstr编码的简单动态字符串
+    # PYDIS_ENCODING_EMBSTR = 8  # embstr编码的简单动态字符串
 
 
 class PydisObject:
