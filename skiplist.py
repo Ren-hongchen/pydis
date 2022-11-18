@@ -80,7 +80,8 @@ class SkipList:
     def level(self) -> int:
         return self._level
 
-    def _get_random_level(self) -> int:
+    @staticmethod
+    def _get_random_level() -> int:
         level = 1
         while random.randint(0, 0x7fff) < (SkipListEnum.SKIPLIST_P * 0xffff):
             level += 1
@@ -338,13 +339,13 @@ class SkipList:
         x = x.level[0].forward
 
         while x and x.score < limits[1]:
-            next = x.level[0].forward
+            next_ = x.level[0].forward
             self._zsl_delete_node(x, update)
             if pdict is not None:
                 pdict.dict_delete(x.pobj)
             del x
             removed += 1
-            x = next
+            x = next_
 
         return removed
 
@@ -374,13 +375,13 @@ class SkipList:
         x = x.level[0].forward
 
         while x and traversed < limits[1]:
-            next = x.level[0].forward
+            next_ = x.level[0].forward
             self._zsl_delete_node(x, update)
             if pdict is not None:
                 pdict.dict_delete(x.pobj)
             del x
             traversed += 1
             removed += 1
-            x = next
+            x = next_
 
         return removed

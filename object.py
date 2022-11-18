@@ -3,8 +3,7 @@ from pydis import PydisObject ,PydisObjectEncodingEnum
 
 
 def sds_encoded_object(obj: PydisObject) -> bool:
-    return (obj.encoding == PydisObjectEncodingEnum.PYDIS_ENCODING_RAW) \
-           or (obj.encoding == PydisObjectEncodingEnum.PYDIS_ENCODING_EMBSTR)
+    return (obj.encoding == PydisObjectEncodingEnum.PYDIS_ENCODING_RAW)
 
 def compare_string_objects(a_obj: PydisObject, b_obj: PydisObject) -> int:
     if a_obj is b_obj:
@@ -32,3 +31,6 @@ def equal_string_objects(a_obj: PydisObject, b_obj: PydisObject) -> bool:
         return a_obj.ptr == b_obj.ptr
     else:
         return compare_string_objects(a_obj, b_obj) == 0
+
+def try_object_encoding(pobj: PydisObject) -> PydisObject:
+    pass
